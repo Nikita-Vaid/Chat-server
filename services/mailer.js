@@ -1,4 +1,5 @@
-const sgMail = require("@sendgrid/mail");
+
+const sgMail = require('@sendgrid/mail');
 
 console.log(process.env.SG_KEY);
 
@@ -13,7 +14,7 @@ const sendSGMail = async ({
   text,
 }) => {
   try {
-    const from = "shreyanshshah242@gmail.com";
+    const from = "vaidnikita06@gmail.com";
 
     const msg = {
       to: to, // Change to your recipient

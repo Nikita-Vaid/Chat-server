@@ -78,7 +78,7 @@ exports.sendOTP = async (req, res, next) => {
 
   // TODO send mail
   mailService.sendEmail({
-    from: "shreyanshshah242@gmail.com",
+    from: "vaidnikita06@gmail.com",
     to: user.email,
     subject: "Verification OTP",
     html: otp(user.firstName, new_otp),
@@ -287,6 +287,3 @@ exports.resetPassword = async (req, res, next) => {
     status: "success",
   })
 };
-
-
-// bwaoidhwqiohioqhioqdioqhdoh
