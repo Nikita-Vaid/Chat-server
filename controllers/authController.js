@@ -8,6 +8,7 @@ const filterObj = require("../utils/filterObj");
 // Model
 const User = require("../models/user");
 const otp = require("../Templates/Mail/otp");
+const resetPassword = require("../Templates/Mail/resetPassword");
 
 // this function will return you jwt token
 const signToken = (userId) => jwt.sign({ userId }, process.env.JWT_SECRET);
@@ -134,6 +135,7 @@ exports.verifyOTP = async (req, res, next) => {
     status: "success",
     message: "OTP verified Successfully!",
     token,
+    user_id: user._id,
   });
 };
 
@@ -177,6 +179,7 @@ exports.login = async (req, res, next) => {
     status: "success",
     message: "Logged in successfully!",
     token,
+    user_id: user._id,
   });
 };
 
@@ -228,7 +231,10 @@ exports.forgotPassword = async (req, res, next) => {
   // 1) Get user based on POSTed email
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
-    return next(new AppError("There is no user with email address.", 404));
+    return res.status(404).json({
+      status: "error",
+      message: "There is no user with email address.",
+    });
   }
 
   // 2) Generate the random reset token
@@ -237,10 +243,16 @@ exports.forgotPassword = async (req, res, next) => {
 
   // 3) Send it to user's email
   try {
-    const resetURL = `https://tawk.com/auth/reset-password/${resetToken}`;
+    const resetURL = `http://localhost:3001/auth/new-password?token=${resetToken}`;
     // TODO => Send Email with this Reset URL to user's email address
 
-    console.log(resetToken);
+    mailService.sendEmail({
+      from: "vaidnikita06@gmail.com",
+      to: user.email,
+      subject: "Reset Password",
+      html: resetPassword(user.firstName, resetURL),
+      attachments: [],
+    });
 
     res.status(200).json({
       status: "success",
@@ -259,7 +271,6 @@ exports.forgotPassword = async (req, res, next) => {
 };
 
 exports.resetPassword = async (req, res, next) => {
-
   // 1) Get user based on the token
   const hashedToken = crypto
     .createHash("sha256")
@@ -273,7 +284,10 @@ exports.resetPassword = async (req, res, next) => {
 
   // 2) If token has not expired, and there is user, set the new password
   if (!user) {
-    return next(new AppError("Token is invalid or has expired", 400));
+    return res.status(400).json({
+      status: "error",
+      message: "Token is Invalid or Expired",
+    });
   }
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
@@ -283,7 +297,11 @@ exports.resetPassword = async (req, res, next) => {
 
   // 3) Update changedPasswordAt property for the user
   // 4) Log the user in, send JWT
+  const token = signToken(user._id);
+
   res.status(200).json({
     status: "success",
-  })
+    message: "Password Reseted Successfully",
+    token,
+  });
 };

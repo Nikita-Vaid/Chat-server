@@ -1,6 +1,5 @@
 {
-    "env": {
-      "SG_KEY": "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"
-      
-    }
+  "env": {
+    "SG_KEY": "api key"
   }
+}

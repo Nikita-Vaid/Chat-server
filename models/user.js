@@ -62,6 +62,16 @@ const userSchema = new mongoose.Schema({
   otp_expiry_time: {
     type: Date,
   },
+  socket_id: {
+    type: String
+  },
+  friends: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
+  ],
+
 });
 
 userSchema.pre("save", async function (next) {
@@ -89,7 +99,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew || !this.password) return next();
 
   this.passwordChangedAt = Date.now() - 1000;
